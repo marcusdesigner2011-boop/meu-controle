@@ -1,0 +1,13 @@
+import { createClient } from "@/lib/supabase/server";
+import { fetchAll } from "@/lib/data";
+import { parseMonth, monthRange } from "@/lib/dates";
+import { formatBRL } from "@/lib/finance/money";
+import { MonthNav } from "@/components/MonthNav";
+import { BudgetForm } from "../feature-forms";
+export const metadata = { title: "Orçamentos · Meu Controle" };
+export default async function Orcamentos({ searchParams }: { searchParams: Promise<Record<string,string|undefined>> }) {
+ const mes=parseMonth((await searchParams).mes), db=await createClient(), range=monthRange(mes), {data:{user}}=await db.auth.getUser();
+ const [{data:budgets},{data:cats},txs]=await Promise.all([db.from("budgets").select("id,user_id,category_id,limit_cents,period_month").eq("period_month",range.start),db.from("categories").select("id,name,kind,user_id").order("name"),fetchAll<{category_id:string|null;kind:string;amount_cents:number;occurred_on:string}>((f,t)=>db.from("transactions").select("category_id,kind,amount_cents,occurred_on").eq("kind","expense").gte("occurred_on",range.start).lt("occurred_on",range.end).order("id").range(f,t))]);
+ const spent=new Map<string,number>(); for(const t of txs) if(t.category_id) spent.set(t.category_id,(spent.get(t.category_id)||0)+Number(t.amount_cents)); const names=new Map((cats||[]).map(c=>[c.id,c.name]));
+ return <div className="space-y-6"><div className="flex flex-wrap justify-between gap-3"><div><h1 className="font-display text-3xl font-semibold">Orçamentos</h1><p className="text-muted">Limites de gastos por categoria.</p></div><MonthNav mes={mes} base="/orcamentos" /></div><section className="card space-y-3"><h2 className="font-display text-xl font-semibold">Novo orçamento para {mes}</h2><BudgetForm categories={(cats||[]).filter(c=>c.user_id===user?.id)} month={mes}/></section><ul className="space-y-3">{(budgets||[]).length===0&&<li className="text-muted">Ainda não há orçamentos neste mês.</li>}{(budgets||[]).map(b=>{const used=spent.get(b.category_id)||0, limit=Number(b.limit_cents), pct=Math.min(100,Math.round(used/limit*100));return <li key={b.id} className="card"><div className="flex justify-between gap-3"><div><p className="font-semibold">{names.get(b.category_id)||"Categoria"}</p><p className="text-sm text-muted">{formatBRL(used)} de {formatBRL(limit)}</p></div><span className={used>limit?"font-semibold text-clay":"font-semibold text-leaf"}>{used>limit?`Acima em ${formatBRL(used-limit)}`:`${pct}% usado`}</span></div><div className="mt-3 h-2 rounded-full bg-sand"><div className={`h-2 rounded-full ${used>limit?"bg-clay":"bg-leaf"}`} style={{width:`${pct}%`}}/></div></li>})}</ul></div>;
+}

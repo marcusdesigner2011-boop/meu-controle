@@ -1,0 +1,4 @@
+import Link from "next/link";
+export const metadata = { title: "Planejamento · Meu Controle" };
+const cards = [["Orçamentos", "Defina limites mensais por categoria e acompanhe o gasto.", "/orcamentos"], ["Metas", "Acompanhe objetivos e registre aportes e retiradas.", "/metas"], ["Recorrências", "Organize pagamentos e receitas que se repetem.", "/recorrencias"]];
+export default function Planejamento() { return <div className="space-y-6"><h1 className="font-display text-3xl font-semibold">Planejamento</h1><div className="grid gap-4 md:grid-cols-3">{cards.map(([title, text, href]) => <Link key={href} href={href} className="card block transition hover:-translate-y-0.5"><h2 className="font-display text-xl font-semibold">{title}</h2><p className="mt-2 text-sm text-muted">{text}</p><span className="mt-4 inline-block text-sm font-semibold text-leaf">Abrir →</span></Link>)}</div></div>; }

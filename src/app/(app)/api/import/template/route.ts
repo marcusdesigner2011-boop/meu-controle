@@ -1,0 +1,1 @@
+export async function GET(){return new Response("date,description,amount,type,account,category,payment_method,notes\r\n",{headers:{"Content-Type":"text/csv; charset=utf-8","Content-Disposition":"attachment; filename=meu-controle-modelo-importacao.csv","Cache-Control":"no-store"}})}

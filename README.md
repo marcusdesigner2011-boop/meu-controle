@@ -21,8 +21,4 @@ No Supabase, mantenha o callback de autenticação autorizado para `https://SEU-
 
 O projeto não contém credenciais de produção do Mercado Pago e não foi feita cobrança real.
 
-## Sobre a chave Pix (importante)
-Uma chave Pix comum **não** permite gerar cobranças nem consultar pagamentos por API.
-Com o Mercado Pago, as cobranças são geradas **na conta Mercado Pago** (token `MP_ACCESS_TOKEN`) e o dinheiro cai
-nessa conta, e não numa chave Pix externa. Para receber no seu banco, você saca/transfere do Mercado Pago.
-Confirme no app do Mercado Pago se a conta está no nome de quem deve receber. Nunca coloque o token no frontend.
+Os pagamentos são processados pela conta Mercado Pago configurada no servidor. Confira no painel do provedor as opções de recebimento e transferência da conta. Nunca coloque o token no frontend.
