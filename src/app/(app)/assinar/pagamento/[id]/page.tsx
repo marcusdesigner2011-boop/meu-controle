@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PaymentMonitor } from "./payment-monitor";
+import { createPixBrCode } from "@/lib/pix/brcode";
 export const metadata = { title: "Pagar com Pix · Meu Controle" };
 
 export default async function Pagamento({ params }: { params: Promise<{id:string}> }) {
@@ -10,8 +11,12 @@ export default async function Pagamento({ params }: { params: Promise<{id:string
   if (!user) notFound();
   const [{ data: charge }, { data: settings }] = await Promise.all([
     supabase.from("charges").select("id,status,plan,amount_cents,provider").eq("id", id).eq("user_id", user.id).maybeSingle(),
-    supabase.from("billing_settings").select("pix_key,pix_holder_name").eq("singleton", true).maybeSingle(),
+    supabase.from("billing_settings").select("pix_key,pix_holder_name,pix_city").eq("singleton", true).maybeSingle(),
   ]);
   if (!charge || charge.provider !== "manual_pix") notFound();
-  return <div className="mx-auto max-w-xl space-y-4"><Link href="/assinar" className="text-sm font-semibold text-leaf underline">← Voltar aos planos</Link><PaymentMonitor id={charge.id} pixKey={settings?.pix_key ?? ""} holder={settings?.pix_holder_name ?? ""} amountCents={Number(charge.amount_cents)} plan={charge.plan}/></div>;
+  let pixPayload = "";
+  try {
+    if (settings?.pix_key && settings.pix_holder_name && settings.pix_city) pixPayload = createPixBrCode({ key: settings.pix_key, holder: settings.pix_holder_name, city: settings.pix_city, amountCents: Number(charge.amount_cents), transactionId: charge.id });
+  } catch { /* A fallback to the receiver key remains available below. */ }
+  return <div className="mx-auto max-w-xl space-y-4"><Link href="/assinar" className="text-sm font-semibold text-leaf underline">← Voltar aos planos</Link><PaymentMonitor id={charge.id} pixKey={settings?.pix_key ?? ""} pixPayload={pixPayload} holder={settings?.pix_holder_name ?? ""} amountCents={Number(charge.amount_cents)} plan={charge.plan}/></div>;
 }
