@@ -23,7 +23,7 @@ export default async function AdminPage() {
     supabase.from("profiles").select("id,name,email,created_at,is_admin").order("created_at", { ascending: false }).limit(1000),
     supabase.from("subscriptions").select("user_id,plan,period_end,admin_override_until"),
     supabase.from("charges").select("id,user_id,plan,amount_cents,status,provider,created_at,paid_at").order("created_at", { ascending: false }).limit(500),
-    supabase.from("billing_settings").select("pix_key,pix_holder_name").eq("singleton", true).maybeSingle(),
+    supabase.from("billing_settings").select("pix_key,pix_holder_name,pix_city").eq("singleton", true).maybeSingle(),
     supabase.from("admin_audit").select("id,action,target_user,details,created_at").order("created_at", { ascending: false }).limit(12),
   ]);
   const firstError = profileResult.error || subscriptionResult.error || chargeResult.error || settingsResult.error;
@@ -43,7 +43,7 @@ export default async function AdminPage() {
   const paidTotal = charges.filter((charge) => charge.status === "approved").reduce((sum, charge) => sum + Number(charge.amount_cents), 0);
   const byCustomer = new Map<string, typeof charges[number]>();
   for (const charge of charges) if (!byCustomer.has(charge.user_id)) byCustomer.set(charge.user_id, charge);
-  const configured = Boolean(settingsResult.data?.pix_key?.trim() && settingsResult.data?.pix_holder_name?.trim());
+  const configured = Boolean(settingsResult.data?.pix_key?.trim() && settingsResult.data?.pix_holder_name?.trim() && settingsResult.data?.pix_city?.trim());
 
   return <div className="space-y-9">
     <section id="visao-geral" className="scroll-mt-6">
@@ -94,8 +94,8 @@ export default async function AdminPage() {
     </section>
 
     <section id="recebimento" className="scroll-mt-6 rounded-2xl border border-black/[.07] bg-white p-5 shadow-[0_2px_10px_rgba(20,40,30,.025)] sm:p-7">
-      <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[#718078]">Checkout do cliente</p><h2 className="mt-2 font-display text-2xl font-semibold">Recebimento via Pix</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-[#718078]">Informe a chave que recebe na sua conta Nubank e o nome do titular. Sem esses dados, o botão de pagamento permanece bloqueado para evitar que o cliente transfira para o destinatário errado.</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-bold ${configured ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{configured ? "Recebimento configurado" : "Configuração pendente"}</span></div>
-      <div className="mt-5 rounded-xl bg-[#f7f9f7] p-4 sm:p-5"><ManualPixSettingsForm pixKey={settingsResult.data?.pix_key ?? ""} holder={settingsResult.data?.pix_holder_name ?? ""} /></div>
+      <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[#718078]">Checkout do cliente</p><h2 className="mt-2 font-display text-2xl font-semibold">Recebimento via Pix</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-[#718078]">Informe a chave da sua conta Nubank, o nome do titular e a cidade. O checkout monta um QR Pix com o valor e a identificação do pedido.</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-bold ${configured ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-900"}`}>{configured ? "QR Pix configurado" : "Configuração pendente"}</span></div>
+      <div className="mt-5 rounded-xl bg-[#f7f9f7] p-4 sm:p-5"><ManualPixSettingsForm pixKey={settingsResult.data?.pix_key ?? ""} holder={settingsResult.data?.pix_holder_name ?? ""} city={settingsResult.data?.pix_city ?? ""} /></div>
     </section>
 
     <section id="atividade" className="scroll-mt-6 rounded-2xl border border-black/[.07] bg-white p-5 shadow-[0_2px_10px_rgba(20,40,30,.025)] sm:p-7">

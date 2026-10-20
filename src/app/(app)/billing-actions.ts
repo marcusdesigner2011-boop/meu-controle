@@ -15,9 +15,9 @@ export async function startManualPixPayment(_: FormState, form: FormData): Promi
   if (!user) redirect(`/entrar?next=${encodeURIComponent(`/assinar?plano=${plan}`)}`);
 
   const { data: settings, error: settingsError } = await supabase.from("billing_settings")
-    .select("pix_key,pix_holder_name").eq("singleton", true).maybeSingle();
-  if (settingsError || !settings?.pix_key?.trim()) {
-    return { error: "O responsável ainda precisa cadastrar a chave Pix recebedora no painel administrativo." };
+    .select("pix_key,pix_holder_name,pix_city").eq("singleton", true).maybeSingle();
+  if (settingsError || !settings?.pix_key?.trim() || !settings.pix_holder_name?.trim() || !settings.pix_city?.trim()) {
+    return { error: "O responsável ainda precisa configurar a chave Pix, o titular e a cidade no painel administrativo." };
   }
 
   const { data: pending } = await supabase.from("charges").select("id,plan")

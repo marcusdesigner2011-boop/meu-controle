@@ -12,7 +12,7 @@ export default async function Assinar({ searchParams }: { searchParams: Promise<
   const [{ data: subscription }, { data: pending }, { data: settings }] = await Promise.all([
     supabase.from("subscriptions").select("plan,period_end,admin_override_until").eq("user_id", user!.id).maybeSingle(),
     supabase.from("charges").select("id,plan,expires_at").eq("user_id", user!.id).eq("provider", "manual_pix").eq("status", "pending").order("created_at", { ascending: false }).limit(1).maybeSingle(),
-    supabase.from("billing_settings").select("pix_key,pix_holder_name").eq("singleton", true).maybeSingle(),
+    supabase.from("billing_settings").select("pix_key,pix_holder_name,pix_city").eq("singleton", true).maybeSingle(),
   ]);
   const activeUntil = [subscription?.period_end, subscription?.admin_override_until].filter(Boolean).map((x) => new Date(x as string)).sort((a,b) => b.getTime()-a.getTime())[0];
   const active = !!activeUntil && activeUntil > new Date();
@@ -21,8 +21,8 @@ export default async function Assinar({ searchParams }: { searchParams: Promise<
     {active && <div className="rounded-xl border border-leaf/20 bg-leaf/5 p-4"><p className="font-semibold text-leafdark">Seu acesso está ativo até {activeUntil!.toLocaleDateString("pt-BR")}.</p><Link href="/painel" className="mt-2 inline-block font-semibold text-leaf underline">Ir para o painel</Link></div>}
     {pending && <div className="rounded-xl border border-ink/10 bg-white p-4"><p className="font-semibold">Você tem um Pix aguardando pagamento.</p><Link href={`/assinar/pagamento/${pending.id}`} className="mt-2 inline-block font-semibold text-leaf underline">Continuar pagamento do plano {PLANS[pending.plan as PlanId]?.name ?? "escolhido"}</Link></div>}
     <section className="card space-y-4"><h2 className="font-display text-xl font-semibold">Pagamento via Pix</h2>
-      {!settings?.pix_key && <p className="rounded-lg bg-sand p-4 text-sm text-muted">O responsável ainda está configurando os dados de recebimento. Tente novamente mais tarde.</p>}
-      {settings?.pix_key && !pending && <ManualPixCheckoutForm key={plan} plan={plan}/>}
+      {(!settings?.pix_key || !settings.pix_holder_name || !settings.pix_city) && <p className="rounded-lg bg-sand p-4 text-sm text-muted">O responsável ainda está configurando os dados necessários para gerar o QR Pix. Tente novamente mais tarde.</p>}
+      {settings?.pix_key && settings.pix_holder_name && settings.pix_city && !pending && <ManualPixCheckoutForm key={plan} plan={plan}/>}
       {pending && <p className="text-sm text-muted">Conclua ou aguarde a revisão do pedido pendente antes de iniciar outro pagamento.</p>}
     </section>
     <div className="grid gap-3 sm:grid-cols-2">{(Object.keys(PLANS) as PlanId[]).map((id) => <Link key={id} href={`/assinar?plano=${id}`} aria-current={plan===id?"true":undefined} className={`rounded-xl border p-4 ${plan===id?"border-leaf bg-leaf/5":"border-ink/10 bg-white"}`}><strong>{PLANS[id].name}</strong><span className="mt-1 block text-sm text-muted">{formatBRL(PLANS[id].priceCents)} / mês</span></Link>)}</div>
