@@ -17,5 +17,11 @@ export function ManualPixSettingsForm({ pixKey, holder, city }: { pixKey: string
 
 export function ManualPixReviewForm({ id }: { id: string }) {
   const [state, action] = useActionState(reviewManualPixCharge, {});
-  return <form action={action} className="mt-3 space-y-2"><input type="hidden" name="id" value={id} /><div className="flex flex-wrap gap-2"><button name="decision" value="approve" className="rounded-lg bg-[#176b4b] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#10573c]">Confirmar Pix recebido</button><button name="decision" value="reject" className="rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-[#66736c] hover:bg-[#f7f9f7]">Recusar pedido</button></div><p className="text-xs text-[#718078]">Confirme somente depois de conferir o crédito no extrato do Nubank.</p><Msg s={state} /></form>;
+  return <div className="mt-3 space-y-2">
+    <div className="flex flex-wrap gap-2">
+      <form action={action}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="approve" /><button type="submit" className="rounded-lg bg-[#176b4b] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#10573c]">Confirmar Pix recebido</button></form>
+      <form action={action}><input type="hidden" name="id" value={id} /><input type="hidden" name="decision" value="reject" /><button type="submit" className="rounded-lg border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-[#66736c] hover:bg-[#f7f9f7]">Recusar pedido</button></form>
+    </div>
+    <p className="text-xs text-[#718078]">Confirme somente depois de conferir o crédito no extrato do Nubank.</p><Msg s={state} />
+  </div>;
 }
