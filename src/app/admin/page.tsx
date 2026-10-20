@@ -8,6 +8,7 @@ export const metadata = { title: "Administração · Meu Controle" };
 
 const date = (value?: string | null) => value ? new Date(value).toLocaleString("pt-BR", { dateStyle: "medium", timeStyle: "short" }) : "—";
 const statusLabel: Record<string, string> = { pending: "Aguardando", approved: "Confirmado", rejected: "Recusado", cancelled: "Cancelado", refunded: "Estornado", expired: "Expirado" };
+const auditLabels: Record<string, string> = { manual_pix_charge_approved: "Pagamento Pix aprovado", manual_pix_charge_rejected: "Pagamento Pix recusado", manual_pix_settings_updated: "Dados de recebimento atualizados" };
 
 function Metric({ label, value, hint, tone = "green" }: { label: string; value: string | number; hint: string; tone?: "green" | "amber" | "blue" | "dark" }) {
   const colors = { green: "bg-emerald-50 text-emerald-800", amber: "bg-amber-50 text-amber-900", blue: "bg-sky-50 text-sky-900", dark: "bg-[#e9eeeb] text-[#18251f]" };
@@ -99,7 +100,7 @@ export default async function AdminPage() {
 
     <section id="atividade" className="scroll-mt-6 rounded-2xl border border-black/[.07] bg-white p-5 shadow-[0_2px_10px_rgba(20,40,30,.025)] sm:p-7">
       <p className="text-xs font-bold uppercase tracking-[.16em] text-[#718078]">Rastro administrativo</p><h2 className="mt-2 font-display text-2xl font-semibold">Atividade recente</h2>
-      <div className="mt-4 divide-y divide-black/[.06]">{(auditResult.data ?? []).map((event) => <div key={event.id} className="flex flex-wrap items-center justify-between gap-2 py-3"><span className="text-sm font-medium">{{ manual_pix_charge_approved: "Pagamento Pix aprovado", manual_pix_charge_rejected: "Pagamento Pix recusado", manual_pix_settings_updated: "Dados de recebimento atualizados" }[event.action] ?? "Ação administrativa"}</span><time className="text-xs text-[#87918b]">{date(event.created_at)}</time></div>)}{(!auditResult.data || auditResult.data.length === 0) && <p className="py-4 text-sm text-[#718078]">As aprovações e alterações feitas aqui aparecerão nesta lista.</p>}</div>
+      <div className="mt-4 divide-y divide-black/[.06]">{(auditResult.data ?? []).map((event) => <div key={event.id} className="flex flex-wrap items-center justify-between gap-2 py-3"><span className="text-sm font-medium">{auditLabels[event.action] ?? "Ação administrativa"}</span><time className="text-xs text-[#87918b]">{date(event.created_at)}</time></div>)}{(!auditResult.data || auditResult.data.length === 0) && <p className="py-4 text-sm text-[#718078]">As aprovações e alterações feitas aqui aparecerão nesta lista.</p>}</div>
     </section>
   </div>;
 }
