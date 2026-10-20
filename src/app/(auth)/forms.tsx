@@ -56,7 +56,7 @@ export function SignupForm({ defaultPlan = "basic" }: { defaultPlan?: PlanId }) 
     <Field label="Nome" name="name" auto="name" />
     <Field label="E-mail" name="email" type="email" auto="email" />
     <Field label="Senha" name="password" type="password" auto="new-password" hint="Mínimo de 8 caracteres." />
-    <p className="text-xs text-muted">Após confirmar o e-mail, você verá o Pix para pagar. O acesso será liberado quando o Mercado Pago confirmar o pagamento.</p>
+    <p className="text-xs text-muted">Após confirmar o e-mail, você poderá pagar via Pix. O acesso é liberado depois que o responsável conferir o recebimento.</p>
     <Msg s={s} /><Submit>Criar conta e continuar</Submit>
     <p className="text-sm text-muted">Já tem conta? <A href="/entrar">Entrar</A></p>
   </form>);

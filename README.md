@@ -1,24 +1,23 @@
-# Meu Controle (veja SETUP.md)
+# Meu Controle
 
-## O que já existe
-- `supabase/migrations/0001_core.sql`: tabelas, RLS por usuário, idempotência de webhook/notificações.
-- `src/lib/finance`: dinheiro em centavos, saldo, parcelas sem perda de centavo.
-- `src/lib/billing/plans.ts`: preços no servidor, regra de datas, status, regra de liberação.
-- Cadastro com escolha de plano, checkout Pix Mercado Pago e confirmação segura por webhook.
-- `tests/finance.test.ts`: `npm install && npm test`.
+Aplicativo financeiro pessoal e familiar com planos mensais e pagamento por Pix com revisão manual.
 
-## Configurar pagamentos
+## Pagamento manual
 
-O checkout Pix e o processamento automático de confirmação estão implementados. Para habilitar cobranças reais, configure no ambiente **do servidor** as variáveis já listadas em `.env.example`: `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` e `SUPABASE_SERVICE_ROLE_KEY`, além de `NEXT_PUBLIC_SITE_URL` apontando para o endereço público HTTPS do app. Nunca use prefixo `NEXT_PUBLIC_` nas credenciais secretas.
+- O cliente solicita um plano e recebe a chave Pix configurada pelo administrador.
+- O cliente faz o Pix no aplicativo do banco e o pagamento fica pendente.
+- O administrador confere o crédito no extrato bancário antes de aprovar.
+- A aprovação grava a cobrança e atualiza a assinatura na mesma transação do banco.
+- Enviar um comprovante ou marcar que pagou não libera acesso. Somente a aprovação do administrador ativa o plano.
 
-No painel do Mercado Pago, configure o webhook de pagamentos para:
+No site, acesse **Mais ferramentas → Painel administrativo**. O proprietário do projeto já está marcado como administrador no Supabase. No painel, cadastre a chave Pix e o nome do titular, depois acompanhe clientes, cobranças e planos ativos.
 
-`https://SEU-DOMINIO/api/webhooks/mercadopago`
+## Banco de dados
 
-Ative o evento de pagamento e use a chave secreta de assinatura do webhook em `MP_WEBHOOK_SECRET`. A aprovação só é aceita após validar a assinatura e consultar o pagamento diretamente no Mercado Pago. O ambiente `localhost` não recebe webhooks públicos e o checkout real é bloqueado nele.
+`supabase/migrations/0001_core.sql` contém o núcleo do app. `0004_planejamento.sql`, `0005_compartilhamento_familiar.sql` e `0006_checkout_pagamentos.sql` ampliam as funcionalidades. `0007_aprovacao_manual_pix.sql` adiciona o pagamento manual, dados mínimos de contato ao perfil e políticas administrativas. A migration `0007` é aditiva e mantém os dados existentes.
 
-No Supabase, mantenha o callback de autenticação autorizado para `https://SEU-DOMINIO/auth/callback`; para desenvolvimento local, `http://localhost:3000/**` permite o retorno de confirmação com o plano selecionado. A data de corte da migration preserva o acesso dos perfis que já existiam antes da cobrança ser habilitada.
+## Ambiente
 
-O projeto não contém credenciais de produção do Mercado Pago e não foi feita cobrança real.
+Preencha `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `NEXT_PUBLIC_SITE_URL` no ambiente da aplicação. A chave Pix e o titular são configurados pelo painel administrativo. Não é necessário token do Mercado Pago para o fluxo manual.
 
-Os pagamentos são processados pela conta Mercado Pago configurada no servidor. Confira no painel do provedor as opções de recebimento e transferência da conta. Nunca coloque o token no frontend.
+Nunca coloque credenciais secretas em variáveis com prefixo `NEXT_PUBLIC_`, no navegador ou no GitHub.

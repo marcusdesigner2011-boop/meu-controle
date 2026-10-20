@@ -21,12 +21,7 @@ export async function middleware(req: NextRequest) {
   const go = (to: string) => NextResponse.redirect(new URL(to, req.url));
   if (!user && path.startsWith("/painel")) return go("/entrar");
   if (user && AUTH_PAGES.includes(path)) return go("/painel");
-  const paymentConfigured = Boolean(process.env.MP_ACCESS_TOKEN && process.env.MP_WEBHOOK_SECRET && process.env.SUPABASE_SERVICE_ROLE_KEY &&
-    process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://"));
   if (user && BILLABLE_PAGES.some((route) => path === route || path.startsWith(`${route}/`))) {
-    // Sem as credenciais do checkout, não é possível confirmar uma assinatura.
-    // Mantém o acesso fechado até o Mercado Pago e o webhook estarem configurados.
-    if (!paymentConfigured) return go("/assinar?pagamento=indisponivel");
     const [{ data: profile }, { data: settings }] = await Promise.all([
       supabase.from("profiles").select("created_at").eq("id", user.id).maybeSingle(),
       supabase.from("billing_settings").select("checkout_cutover_at").eq("singleton", true).maybeSingle(),

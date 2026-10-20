@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 const items = [["/painel", "Painel"], ["/lancamentos", "Lançamentos"], ["/contas", "Contas"], ["/planejamento", "Planejamento"], ["/mais", "Mais"]] as const;
-export function Nav() {
+export function Nav({ isAdmin = false }: { isAdmin?: boolean }) {
   const path = usePathname();
+  const navItems = isAdmin ? [...items, ["/admin", "Admin"] as const] : items;
   return (
     <nav aria-label="Principal" className="fixed inset-x-0 bottom-0 z-10 flex border-t border-ink/10 bg-paper pb-[env(safe-area-inset-bottom)] md:static md:border-0 md:bg-transparent md:pb-0">
-      {items.map(([href, label]) => {
+      {navItems.map(([href, label]) => {
         const planning = ["/orcamentos", "/metas", "/recorrencias"].some((p) => path.startsWith(p));
         const extras = ["/relatorios", "/importar", "/familia", "/categorias"].some((p) => path.startsWith(p));
         const on = path.startsWith(href) || (href === "/planejamento" && planning) || (href === "/mais" && extras);

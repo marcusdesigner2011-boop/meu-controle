@@ -9,12 +9,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/entrar");
+  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
   return (
     <div className="min-h-screen">
       <header className="border-b border-ink/10 bg-white/60">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
           <Link href="/painel"><Logo /></Link>
-          <Nav />
+          <Nav isAdmin={profile?.is_admin === true} />
           <form action={signOut}><button className="btn-ghost !px-4 !py-2 text-sm">Sair</button></form>
         </div>
       </header>
