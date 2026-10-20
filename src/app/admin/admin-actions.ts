@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PLANS, type PlanId } from "@/lib/billing/plans";
+import { normalizePixLabel } from "@/lib/pix/brcode";
 import type { FormState } from "../(auth)/actions";
 
 const str = (f: FormData, key: string) => String(f.get(key) ?? "").trim();
@@ -20,15 +21,18 @@ async function adminSession() {
 export async function saveManualPixSettings(_: FormState, form: FormData): Promise<FormState> {
   const pixKey = str(form, "pix_key");
   const holder = str(form, "pix_holder_name");
-  if (pixKey.length < 5 || pixKey.length > 180) return { error: "Informe uma chave Pix válida (de 5 a 180 caracteres)." };
+  const city = str(form, "pix_city");
+  if (pixKey.length < 5 || pixKey.length > 180 || new TextEncoder().encode(pixKey).length > 77) return { error: "Informe uma chave Pix válida. Para caber no QR Pix, ela pode ter até 77 bytes." };
   if (holder.length < 2 || holder.length > 100) return { error: "Informe o nome do titular como aparece no banco." };
+  if (normalizePixLabel(holder, 25).length < 2) return { error: "O nome precisa ter letras ou números para compor o QR Pix." };
+  if (!city || city.length > 40 || !normalizePixLabel(city, 15)) return { error: "Informe sua cidade (até 15 caracteres no QR Pix)." };
   const { supabase, user } = await adminSession();
-  const { data: updated, error } = await supabase.from("billing_settings").update({ pix_key: pixKey, pix_holder_name: holder }).eq("singleton", true).select("singleton").maybeSingle();
-  if (error || !updated) return { error: "Não consegui salvar os dados Pix. Confirme que a migration 0007_aprovacao_manual_pix está aplicada e tente de novo." };
-  await supabase.from("admin_audit").insert({ admin_id: user.id, action: "manual_pix_settings_updated", details: { holder } });
+  const { data: updated, error } = await supabase.from("billing_settings").update({ pix_key: pixKey, pix_holder_name: holder, pix_city: normalizePixLabel(city, 15) }).eq("singleton", true).select("singleton").maybeSingle();
+  if (error || !updated) return { error: "Não consegui salvar os dados Pix. Confirme que as migrations do painel e do QR Pix estão aplicadas e tente de novo." };
+  await supabase.from("admin_audit").insert({ admin_id: user.id, action: "manual_pix_settings_updated", details: { holder, city: normalizePixLabel(city, 15) } });
   revalidatePath("/admin");
   revalidatePath("/assinar");
-  return { ok: "Recebimento configurado. Os clientes já podem iniciar pedidos Pix." };
+  return { ok: "Recebimento configurado. Os clientes já podem escanear o QR Pix e iniciar pedidos." };
 }
 
 export async function reviewManualPixCharge(_: FormState, form: FormData): Promise<FormState> {
