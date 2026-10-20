@@ -1,10 +1,61 @@
 @tailwind base; @tailwind components; @tailwind utilities;
-@layer base { body { @apply bg-paper text-ink font-sans antialiased; } }
+@layer base {
+  :root {
+    color-scheme: light;
+    --color-paper: #F6F2E9;
+    --color-ink: #17202A;
+    --color-leaf: #0B6E4F;
+    --color-leafdark: #084C37;
+    --color-clay: #C8553D;
+    --color-sand: #E4DCC8;
+    --color-muted: #5B6470;
+  }
+  :root.dark {
+    color-scheme: dark;
+    --color-paper: #121a17;
+    --color-ink: #e8f0eb;
+    --color-leaf: #0B6E4F;
+    --color-leafdark: #084C37;
+    --color-clay: #f28a72;
+    --color-sand: #26352e;
+    --color-muted: #afbbb3;
+  }
+  body { @apply bg-paper text-ink font-sans antialiased; }
+}
 @layer components {
   .btn-primary { @apply inline-flex items-center justify-center rounded-lg bg-leaf px-5 py-3 font-semibold text-white transition hover:bg-leafdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf disabled:opacity-60; }
   .btn-ghost { @apply inline-flex items-center justify-center rounded-lg border border-ink/20 px-5 py-3 font-semibold transition hover:bg-sand/60; }
   .input { @apply w-full rounded-lg border border-ink/20 bg-white px-4 py-3 outline-none focus:border-leaf focus:ring-2 focus:ring-leaf/30; }
   .label { @apply mb-1 block text-sm font-semibold; }
   .ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(23,32,42,.07) 31px, rgba(23,32,42,.07) 32px); }
+  .card { @apply rounded-2xl border border-ink/10 bg-white p-5; }
 }
-@layer components { .card { @apply rounded-2xl border border-ink/10 bg-white p-5; } }
+
+.dark [class~="bg-white"], .dark [class*="bg-white/"] { background-color: #1b2822 !important; }
+.dark [class*="border-black"], .dark [class*="border-ink/"] { border-color: rgb(255 255 255 / 12%) !important; }
+.dark .bg-paper { background-color: var(--color-paper) !important; }
+.dark .text-ink { color: var(--color-ink) !important; }
+.dark .text-muted { color: var(--color-muted) !important; }
+.dark .text-leaf, .dark .text-leafdark { color: #63d6a4 !important; }
+.dark .text-clay { color: var(--color-clay) !important; }
+.dark [class~="bg-sand"], .dark [class*="bg-sand/"] { background-color: #26352e !important; }
+.dark [class*="hover:bg-sand/"]:hover { background-color: #2b3c34 !important; }
+.dark input, .dark textarea, .dark select { background-color: #1b2822; color: var(--color-ink); border-color: rgb(255 255 255 / 18%); }
+.dark input::placeholder, .dark textarea::placeholder { color: #9aa9a0; }
+.dark [class*="bg-amber-50"], .dark [class*="bg-amber-100"] { background-color: #382d18 !important; }
+.dark [class*="bg-emerald-50"] { background-color: #173526 !important; }
+.dark [class*="bg-sky-50"] { background-color: #182e3b !important; }
+.dark [class*="bg-rose-50"] { background-color: #3a2024 !important; }
+.dark [class*="text-amber-"] { color: #f4ce7a !important; }
+.dark [class*="text-emerald-"] { color: #8dd9a8 !important; }
+.dark [class*="text-sky-"] { color: #8bcff0 !important; }
+.dark [class*="text-rose-"] { color: #ff9ca7 !important; }
+.dark [class*="bg-[#f3f5f2]"], .dark [class*="bg-[#f7f9f7]"], .dark [class*="bg-[#f6f8f6]"] { background-color: #1b2822 !important; }
+.dark [class*="bg-[#e9eeeb]"], .dark [class*="bg-[#edf4ef]"] { background-color: #26352e !important; }
+.dark [class*="text-[#18251f]"], .dark [class*="text-[#4d5b53]"] { color: var(--color-ink) !important; }
+.dark [class*="text-[#718078]"], .dark [class*="text-[#66736c]"], .dark [class*="text-[#87918b]"], .dark [class*="text-[#77827c]"] { color: var(--color-muted) !important; }
+.dark [class*="text-[#176b4b]"] { color: #63d6a4 !important; }
+.dark [class*="bg-[#176b4b]"] { background-color: var(--color-leaf) !important; }
+.dark [class*="hover:bg-[#f3f5f2]"]:hover, .dark [class*="hover:bg-[#f7f9f7]"]:hover, .dark [class*="hover:bg-[#edf4ef]"]:hover { background-color: #2b3c34 !important; }
+.dark [class*="hover:bg-[#10573c]"]:hover { background-color: #126b4d !important; }
+.dark .ruled { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgb(255 255 255 / 9%) 31px, rgb(255 255 255 / 9%) 32px); }
