@@ -32,6 +32,7 @@
 }
 
 .dark [class~="bg-white"], .dark [class*="bg-white/"] { background-color: #1b2822 !important; }
+.dark .card { background-color: #1b2822 !important; color: var(--color-ink) !important; }
 .dark [class*="border-black"], .dark [class*="border-ink/"] { border-color: rgb(255 255 255 / 12%) !important; }
 .dark .bg-paper { background-color: var(--color-paper) !important; }
 .dark .text-ink { color: var(--color-ink) !important; }
