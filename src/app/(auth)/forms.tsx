@@ -48,7 +48,14 @@ export function SignupForm({ defaultPlan = "basic" }: { defaultPlan?: PlanId }) 
         {(Object.keys(PLANS) as PlanId[]).map((plan) => (
           <label key={plan} className="flex cursor-pointer items-start gap-3 rounded-xl border border-ink/15 bg-white p-4 has-[:checked]:border-leaf has-[:checked]:bg-leaf/5">
             <input type="radio" name="plan" value={plan} defaultChecked={plan === defaultPlan} className="mt-1 accent-leaf" />
-            <span><strong className="block">{PLANS[plan].name}</strong><span className="text-sm text-muted">{formatBRL(PLANS[plan].priceCents)} / mês</span></span>
+            <span className="min-w-0 flex-1">
+              <strong className="block">{PLANS[plan].name}</strong>
+              <span className="text-sm font-semibold text-ink">{formatBRL(PLANS[plan].priceCents)} / mês</span>
+              <span className="mt-3 block text-sm font-medium">O que está incluído:</span>
+              <ul className="mt-1 space-y-1 text-sm leading-5 text-muted">
+                {PLANS[plan].features.map((feature) => <li key={feature}>✓ {feature}</li>)}
+              </ul>
+            </span>
           </label>
         ))}
       </div>
@@ -56,7 +63,7 @@ export function SignupForm({ defaultPlan = "basic" }: { defaultPlan?: PlanId }) 
     <Field label="Nome" name="name" auto="name" />
     <Field label="E-mail" name="email" type="email" auto="email" />
     <Field label="Senha" name="password" type="password" auto="new-password" hint="Mínimo de 8 caracteres." />
-    <p className="text-xs text-muted">Após confirmar o e-mail, você poderá pagar via Pix. O acesso é liberado depois que o responsável conferir o recebimento.</p>
+    <p className="text-xs text-muted">A cobrança é mensal. Após confirmar o e-mail, você poderá pagar via Pix. O acesso é liberado depois que o responsável conferir o recebimento.</p>
     <Msg s={s} /><Submit>Criar conta e continuar</Submit>
     <p className="text-sm text-muted">Já tem conta? <A href="/entrar">Entrar</A></p>
   </form>);
