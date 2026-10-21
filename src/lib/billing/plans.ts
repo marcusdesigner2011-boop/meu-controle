@@ -1,5 +1,25 @@
 // Preços SOMENTE aqui (servidor). O navegador envia apenas "basic" | "max".
-export const PLANS = { basic: { name: "Básico", priceCents: 999 }, max: { name: "Max", priceCents: 1599 } } as const;
+export const PLANS = {
+  basic: {
+    name: "Básico",
+    priceCents: 999,
+    features: [
+      "Receitas, despesas, contas e painel financeiro",
+      "Orçamentos, metas e lançamentos recorrentes",
+      "Relatórios mensais e exportação CSV",
+    ],
+  },
+  max: {
+    name: "Max",
+    priceCents: 1599,
+    features: [
+      "Tudo do plano Básico",
+      "Importação de lançamentos por arquivo CSV",
+      "Compartilhamento familiar das finanças",
+      "Backup completo dos dados em JSON",
+    ],
+  },
+} as const;
 export type PlanId = keyof typeof PLANS;
 
 // Regra única de datas: +1 mês; se o dia não existir (31 -> fev), usa o último dia do mês.
