@@ -3,10 +3,6 @@ import { Logo } from "@/components/Logo";
 import { PLANS } from "@/lib/billing/plans";
 import { formatBRL } from "@/lib/finance/money";
 
-const features = {
-  basic: ["Receitas, despesas, contas e painel financeiro", "Orçamentos, metas e lançamentos recorrentes", "Relatórios mensais e exportação CSV"],
-  max: ["Tudo do Básico", "Importação de lançamentos por CSV", "Compartilhamento familiar e backup JSON"],
-};
 export default function Home() {
   return (
     <>
@@ -28,7 +24,7 @@ export default function Home() {
             <article key={id} className="rounded-2xl border border-ink/15 bg-white p-6">
               <h3 className="font-display text-2xl font-semibold">{PLANS[id].name}</h3>
               <p className="mt-1 text-3xl font-bold">{formatBRL(PLANS[id].priceCents)}<span className="text-base font-normal text-muted"> /mês</span></p>
-              <ul className="mt-4 space-y-2 text-muted">{features[id].map((f) => <li key={f}>✓ {f}</li>)}</ul>
+              <ul className="mt-4 space-y-2 text-muted">{PLANS[id].features.map((f) => <li key={f}>✓ {f}</li>)}</ul>
               <Link href={`/cadastrar?plano=${id}`} className="btn-primary mt-6 w-full">Escolher {PLANS[id].name}</Link>
             </article>
           ))}
