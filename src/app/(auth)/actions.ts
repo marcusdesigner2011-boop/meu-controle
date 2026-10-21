@@ -14,7 +14,7 @@ function explain(e: { code?: string; message?: string; status?: number; name?: s
   const c = e.code ?? "", m = (e.message ?? "").toLowerCase();
   if (c === "user_already_exists" || c === "email_exists") return "Este e-mail já tem cadastro. Tente entrar ou use “Esqueci minha senha”.";
   if (c === "over_email_send_rate_limit" || c === "over_request_rate_limit" || e.status === 429)
-    return "Limite de e-mails/tentativas do Supabase atingido. Aguarde cerca de 1 hora, ou desligue “Confirm email” no Supabase para testar.";
+    return "O limite temporário de envio de e-mails foi atingido. Tente novamente mais tarde. Para liberar novos cadastros de forma confiável, o responsável precisa configurar um servidor SMTP próprio no Supabase.";
   if (c === "weak_password") return "Senha fraca demais. Use uma senha maior, com letras e números.";
   if (c === "email_address_invalid" || c === "validation_failed") return "O Supabase não aceitou esse e-mail. Tente outro endereço.";
   if (c === "signup_disabled") return "Novos cadastros estão desativados no Supabase (Authentication > Sign In / Providers > Allow new users to sign up).";
